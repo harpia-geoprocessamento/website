@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Harpia Geo - Geoprocessamento</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+	/* Fundo para o conteúdo principal */
+body::before {
+    content: "";
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-image: url('https://images.unsplash.com/photo-1519681393784-d120267933ba'); /* Substitua pela sua imagem */
+    background-size: cover;
+    background-position: center;
+    background-attachment: fixed;
+    z-index: -1;
+    opacity: 0.08; /* Ajuste a transparência */
+}
+
+/* Ajuste para o conteúdo principal */
+main {
+    background-color: rgba(255, 255, 255, 0.85); /* Fundo semi-transparente para legibilidade */
+    border-radius: 12px;
+    padding: 2rem;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+    margin: 1rem auto;
+    max-width: 1200px;
+}
+
+/* Garantir que header e footer fiquem "por cima" */
+header, footer {
+    position: relative;
+    background: linear-gradient(135deg, #A8A8A8, #E5E5E5) !important; /* Mantém o gradiente original */
+    z-index: 10;
+}
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            line-height: 1.6;
+        }
+        
+        header {
+            background: linear-gradient(135deg, #A8A8A8, #E5E5E5);
+            color: #000000;
+            padding: 1rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo img {
+            height: 50px;
+            width: auto;
+        }
+        
+        .logo h1 {
+            font-size: 1.5rem;
+            font-weight: 700;
+        }
+        
+        nav ul {
+            display: flex;
+            list-style: none;
+        }
+        
+        nav ul li {
+            margin-left: 20px;
+        }
+        
+        nav ul li a {
+            color: #000000 !important;
+            text-decoration: none;
+            font-weight: 500;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            transition: all 0.3s ease;
+        }
+        
+        nav ul li a i {
+            font-size: 1.2rem;
+            margin-bottom: 5px;
+        }
+        
+        nav ul li a:hover {
+            color: #f1c40f !important;
+            transform: translateY(-3px);
+        }
+        
+        main {
+            padding: 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        
+        section {
+            background: white;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            display: none;
+        }
+        
+        section.active {
+            display: block;
+            animation: fadeIn 0.5s ease;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        h2 {
+            color: #2c3e50;
+            margin-bottom: 1.5rem;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        /* Estilos do Carrossel */
+        .carrossel-container {
+            position: relative;
+            max-width: 900px;
+            margin: 2rem auto;
+        }
+        
+        .carrossel {
+            display: flex;
+            overflow: hidden;
+            border-radius: 12px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            position: relative;
+            height: 420px;
+        }
+        
+        .carrossel-card {
+            min-width: 100%;
+            transition: transform 0.5s ease-in-out;
+            position: relative;
+        }
+        
+        .card-imagem {
+            height: 250px;
+            background-size: cover;
+            background-position: center;
+            border-radius: 12px 12px 0 0;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding-top: 2rem;
+        }
+        
+        .card-conteudo {
+            padding: 1.8rem;
+            background: white;
+            border-radius: 0 0 12px 12px;
+        }
+        
+        .card-conteudo h4 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.4rem;
+        }
+        
+        .card-conteudo p {
+            color: #555;
+            font-size: 1rem;
+        }
+        
+        .carrossel-navegacao {
+            display: flex;
+            justify-content: center;
+            margin-top: 1.5rem;
+            gap: 12px;
+        }
+        
+        .carrossel-bolinha {
+            width: 14px;
+            height: 14px;
+            border-radius: 50%;
+            background: #ddd;
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        
+        .carrossel-bolinha.ativa {
+            background: #3498db;
+            transform: scale(1.2);
+        }
+        
+        .carrossel-btn {
+            position: absolute;
+            top: 50%;
+            transform: translateY(-50%);
+            background: rgba(255,255,255,0.8);
+            border: none;
+            width: 45px;
+            height: 45px;
+            border-radius: 50%;
+            cursor: pointer;
+            z-index: 10;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #3498db;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        
+        .carrossel-btn:hover {
+            background: rgba(255,255,255,0.95);
+            transform: translateY(-50%) scale(1.1);
+        }
+        
+        .carrossel-btn.anterior {
+            left: 20px;
+        }
+        
+        .carrossel-btn.proximo {
+            right: 20px;
+        }
+        
+        .card-icone {
+            font-size: 2.5rem;
+            color: white;
+            background: rgba(52, 152, 219, 0.9);
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        
+        /* Estilos dos Serviços */
+        .service-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 1.8rem;
+            margin-top: 2rem;
+        }
+        
+        .service-card {
+            background: #f9f9f9;
+            border-radius: 8px;
+            padding: 1.8rem;
+            text-align: center;
+            transition: all 0.3s ease;
+            border-left: 4px solid #3498db;
+        }
+        
+        .service-card:hover {
+            transform: translateY(-8px);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.12);
+        }
+        
+        .service-card i {
+            font-size: 2.5rem;
+            color: #3498db;
+            margin-bottom: 1.5rem;
+        }
+        
+        .service-card h3 {
+            color: #2c3e50;
+            margin-bottom: 1rem;
+            font-size: 1.3rem;
+        }
+        
+        /* Estilos de Contato */
+        .contact-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.8rem;
+            margin-top: 2rem;
+        }
+        
+        .contact-method {
+            background: #f9f9f9;
+            padding: 1.8rem;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            transition: all 0.3s ease;
+        }
+        
+        .contact-method:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+        
+        .contact-method i {
+            font-size: 1.8rem;
+            color: #3498db;
+        }
+        
+        .contact-method div h3 {
+            color: #2c3e50;
+            margin-bottom: 0.5rem;
+        }
+        
+        /* Estilos do Formulário */
+        form {
+            margin-top: 2rem;
+            background: #f9f9f9;
+            padding: 2rem;
+            border-radius: 8px;
+        }
+        
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 500;
+            color: #2c3e50;
+        }
+        
+        input, textarea {
+            width: 100%;
+            padding: 0.8rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+            transition: all 0.3s ease;
+        }
+        
+        input:focus, textarea:focus {
+            outline: none;
+            border-color: #3498db;
+            box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.2);
+        }
+        
+        textarea {
+            min-height: 150px;
+            resize: vertical;
+        }
+        
+        button[type="button"] {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+            border: none;
+            padding: 0.8rem 1.8rem;
+            border-radius: 4px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+        
+        button[type="button"]:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(52, 152, 219, 0.4);
+        }
+        
+        /* Estilos do Rodapé */
+        footer {
+            background: linear-gradient(135deg, #A8A8A8, #E5E5E5);
+            color: black;
+            text-align: center;
+            padding: 2rem;
+            margin-top: 3rem;
+        }
+        
+        .social-links {
+            margin-top: 1rem;
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+        }
+        
+        .social-links a {
+            color: black;
+            font-size: 1.3rem;
+            transition: all 0.3s ease;
+        }
+        
+        .social-links a:hover {
+            color: #3498db;
+            transform: translateY(-3px);
+        }
+        
+        /* Responsividade */
+        @media (max-width: 768px) {
+            header {
+                flex-direction: column;
+                padding: 1rem;
+            }
+            
+            nav ul {
+                margin-top: 1rem;
+            }
+            
+            nav ul li {
+                margin-left: 15px;
+            }
+            
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+            
+            .carrossel {
+                height: 500px;
+            }
+            
+            .card-imagem {
+                height: 200px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <img src="HarpiaGeo.png" alt="Harpia Geoprocessamento">
+            <h1>Harpia Geoprocessamento</h1>
+        </div>
+        <nav>
+            <ul>
+                <li><a href="#" class="nav-link" data-section="home"><i class="fas fa-home"></i> Início</a></li>
+                <li><a href="#" class="nav-link" data-section="about"><i class="fas fa-users"></i> Quem Somos</a></li>
+                <li><a href="#" class="nav-link" data-section="services"><i class="fas fa-cogs"></i> Serviços</a></li>
+                <li><a href="#" class="nav-link" data-section="contact"><i class="fas fa-envelope"></i> Contato</a></li>
+            </ul>
+        </nav>
+    </header>
+    
+    <main>
+        <section id="home" class="active">
+            <h2><i class="fas fa-map-marked-alt"></i> Bem-vindo a Harpia Geoprocessamento</h2>
+            <p>Transformamos dados espaciais em soluções inteligentes para impulsionar seu negócio com tecnologia geoespacial de ponta.</p>
+            
+            <div class="carrossel-container">
+                <h3 style="text-align: center; margin-bottom: 1.5rem;">
+                    <i class="fas fa-medal" style="color: #f1c40f;"></i> Nossas Soluções em Destaque
+                </h3>
+                
+                <div class="carrossel">
+                    <!-- Card 1 -->
+                    <div class="carrossel-card">
+                        <div class="card-imagem" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1605000797499-95a51c5269ae?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                            <i class="fas fa-map-marked-alt card-icone"></i>
+                        </div>
+                        <div class="card-conteudo">
+                            <h4>Georreferenciamento de Imóveis</h4>
+                            <p>Solução completa para regularização fundiária com precisão topográfica e atendimento aos requisitos do INCRA. Ideal para propriedades rurais e urbanas, garantindo segurança jurídica.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 2 -->
+                    <div class="carrossel-card">
+                        <div class="card-imagem" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1462331940025-496dfbfc7564?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                            <i class="fas fa-satellite card-icone"></i>
+                        </div>
+                        <div class="card-conteudo">
+                            <h4>Análise Multitemporal</h4>
+                            <p>Monitoramento de mudanças no uso do solo através de séries históricas de imagens de satélite. Identificação de desmatamentos, expansão urbana e alterações ambientais com relatórios detalhados.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 3 -->
+                    <div class="carrossel-card">
+                        <div class="card-imagem" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1581093450021-4a7360e9a7d0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                            <i class="fas fa-layer-group card-icone"></i>
+                        </div>
+                        <div class="card-conteudo">
+                            <h4>Modelos Digitais 3D</h4>
+                            <p>Geração de Modelos Digitais de Terreno e Superfície (MDT/MDS) para aplicação em estudos hidrológicos, projetos de engenharia e planejamento urbano. Visualização tridimensional precisa do terreno.</p>
+                        </div>
+                    </div>
+                    
+                    <!-- Card 4 -->
+                    <div class="carrossel-card">
+                        <div class="card-imagem" style="background-image: linear-gradient(rgba(0,0,0,0.3), rgba(0,0,0,0.3)), url('https://images.unsplash.com/photo-1551288049-bebda4e38f71?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80');">
+                            <i class="fas fa-database card-icone"></i>
+                        </div>
+                        <div class="card-conteudo">
+                            <h4>GIS Corporativo</h4>
+                            <p>Implantação de Sistemas de Informação Geográfica (SIG) totalmente integrados aos fluxos de trabalho da sua empresa. Dashboards interativos e análise espacial avançada para tomada de decisão estratégica.</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="carrossel-navegacao">
+                    <div class="carrossel-bolinha ativa" data-indice="0"></div>
+                    <div class="carrossel-bolinha" data-indice="1"></div>
+                    <div class="carrossel-bolinha" data-indice="2"></div>
+                    <div class="carrossel-bolinha" data-indice="3"></div>
+                </div>
+                
+                <button class="carrossel-btn anterior">
+                    <i class="fas fa-chevron-left"></i>
+                </button>
+                <button class="carrossel-btn proximo">
+                    <i class="fas fa-chevron-right"></i>
+                </button>
+            </div>
+        </section>
+        
+        <section id="about">
+            <h2><i class="fas fa-users"></i> Quem Somos</h2>
+            <p>A Harpia Geo é uma empresa especializada em geoprocessamento e análise espacial, fundada em 2010 com o objetivo de fornecer soluções tecnológicas inovadoras para desafios geográficos complexos.</p>
+            <p>Nossa equipe multidisciplinar é composta por geógrafos, engenheiros cartógrafos, especialistas em sensoriamento remoto e desenvolvedores GIS, todos comprometidos com a excelência técnica e a satisfação dos clientes.</p>
+            
+            <div style="margin-top: 2.5rem; display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.8rem;">
+                <div style="background: #f1f8fe; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-bullseye" style="font-size: 2.5rem; color: #3498db; margin-bottom: 1rem;"></i>
+                    <h3>Missão</h3>
+                    <p>Fornecer soluções inovadoras em geoprocessamento que transformem dados espaciais em informações estratégicas para tomada de decisão.</p>
+                </div>
+                <div style="background: #f1f8fe; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-eye" style="font-size: 2.5rem; color: #3498db; margin-bottom: 1rem;"></i>
+                    <h3>Visão</h3>
+                    <p>Ser referência nacional em soluções de geotecnologia até 2030, reconhecida pela excelência técnica e impacto social positivo.</p>
+                </div>
+                <div style="background: #f1f8fe; padding: 1.5rem; border-radius: 8px; text-align: center;">
+                    <i class="fas fa-heart" style="font-size: 2.5rem; color: #3498db; margin-bottom: 1rem;"></i>
+                    <h3>Valores</h3>
+                    <p>Inovação contínua, qualidade técnica, ética profissional e compromisso com os resultados dos nossos clientes.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="services">
+            <h2><i class="fas fa-cogs"></i> Serviços que Prestamos</h2>
+            <p>Oferecemos soluções completas em geoprocessamento para diversos setores da economia, combinando tecnologia de ponta com expertise técnica.</p>
+            
+            <div class="service-grid">
+                <div class="service-card">
+                    <i class="fas fa-map"></i>
+                    <h3>Mapeamento Temático</h3>
+                    <p>Criação de mapas temáticos especializados para análise espacial de dados específicos, com legendas personalizadas e representação cartográfica precisa.</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-satellite-dish"></i>
+                    <h3>Sensoriamento Remoto</h3>
+                    <p>Processamento e análise avançada de imagens de satélite e drones para monitoramento ambiental, agrícola e urbano.</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-project-diagram"></i>
+                    <h3>SIG Corporativo</h3>
+                    <p>Implantação de Sistemas de Informação Geográfica personalizados para gestão empresarial, integrado aos seus fluxos de trabalho.</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-chart-line"></i>
+                    <h3>Análise Espacial</h3>
+                    <p>Estudos avançados de padrões e relações espaciais em seus dados, com modelagem geoestatística e algoritmos personalizados.</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-mobile-alt"></i>
+                    <h3>Aplicações Móveis</h3>
+                    <p>Desenvolvimento de apps com funcionalidades de geolocalização para coleta de dados em campo e navegação inteligente.</p>
+                </div>
+                
+                <div class="service-card">
+                    <i class="fas fa-database"></i>
+                    <h3>Bancos de Dados Espaciais</h3>
+                    <p>Modelagem e implementação de bancos de dados geográficos robustos para armazenamento e consulta eficiente de dados espaciais.</p>
+                </div>
+            </div>
+        </section>
+        
+        <section id="contact">
+            <h2><i class="fas fa-envelope"></i> Contato</h2>
+            <p>Entre em contato conosco para mais informações sobre nossos serviços ou solicitar um orçamento personalizado.</p>
+            
+            <div class="contact-info">
+                <div class="contact-method">
+                    <i class="fas fa-phone"></i>
+                    <div>
+                        <h3>Telefone</h3>
+                        <p>(11) 1234-5678</p>
+                        <p>(11) 98765-4321</p>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <i class="fas fa-envelope"></i>
+                    <div>
+                        <h3>Email</h3>
+                        <p>contato@harpiageo.com.br</p>
+                        <p>comercial@harpiageo.com.br</p>
+                    </div>
+                </div>
+                
+                <div class="contact-method">
+                    <i class="fas fa-map-marker-alt"></i>
+                    <div>
+                        <h3>Endereço</h3>
+                        <p>Av. Paulista, 1000 - 10º andar</p>
+                        <p>São Paulo/SP - CEP: 01310-100</p>
+                    </div>
+                </div>
+            </div>
+            
+            <form>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="name">Nome</label>
+                        <input type="text" id="name" placeholder="Seu nome completo">
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" placeholder="seu@email.com">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="subject">Assunto</label>
+                    <input type="text" id="subject" placeholder="Sobre o que deseja falar conosco?">
+                </div>
+                
+                <div class="form-group">
+                    <label for="message">Mensagem</label>
+                    <textarea id="message" placeholder="Descreva sua necessidade ou dúvida..."></textarea>
+                </div>
+                
+                <button type="button" id="send-btn">
+                    <i class="fas fa-paper-plane"></i> Enviar Mensagem
+                </button>
+            </form>
+        </section>
+    </main>
+    
+    <footer>
+        <p>&copy; 2023 Harpia Geoprocessamento - Todos os direitos reservados</p>
+        <div class="social-links">
+            <a href="#"><i class="fab fa-facebook-f"></i></a>
+            <a href="#"><i class="fab fa-twitter"></i></a>
+            <a href="#"><i class="fab fa-linkedin-in"></i></a>
+            <a href="#"><i class="fab fa-instagram"></i></a>
+        </div>
+    </footer>
+
+    <script>
+        // Navegação entre seções
+        document.querySelectorAll('.nav-link').forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                const sectionId = this.getAttribute('data-section');
+                
+                // Esconde todas as seções
+                document.querySelectorAll('section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Mostra a seção clicada
+                document.getElementById(sectionId).classList.add('active');
+                
+                // Atualiza o link ativo
+                document.querySelectorAll('.nav-link').forEach(navLink => {
+                    navLink.style.color = 'black';
+                });
+                this.style.color = '#f1c40f';
+            });
+        });
+        
+        // Simulação de envio do formulário
+        document.getElementById('send-btn').addEventListener('click', function() {
+            const name = document.getElementById('name').value;
+            const email = document.getElementById('email').value;
+            const subject = document.getElementById('subject').value;
+            const message = document.getElementById('message').value;
+            
+            if(name && email && subject && message) {
+                alert(`Obrigado, ${name}! Sua mensagem foi enviada com sucesso. Entraremos em contato em breve.`);
+                document.querySelector('form').reset();
+            } else {
+                alert('Por favor, preencha todos os campos do formulário.');
+            }
+        });
+        
+        // Carrossel Interativo
+        document.addEventListener('DOMContentLoaded', function() {
+            const carrossel = document.querySelector('.carrossel');
+            const cards = document.querySelectorAll('.carrossel-card');
+            const bolinhas = document.querySelectorAll('.carrossel-bolinha');
+            const btnAnterior = document.querySelector('.carrossel-btn.anterior');
+            const btnProximo = document.querySelector('.carrossel-btn.proximo');
+            
+            let indiceAtual = 0;
+            const totalCards = cards.length;
+            let intervaloCarrossel;
+            
+            function atualizarCarrossel() {
+                carrossel.style.transform = `translateX(-${indiceAtual * 100}%)`;
+                
+                // Atualiza bolinhas de navegação
+                bolinhas.forEach((bolinha, index) => {
+                    bolinha.classList.toggle('ativa', index === indiceAtual);
+                });
+            }
+            
+            function proximoCard() {
+                indiceAtual = (indiceAtual + 1) % totalCards;
+                atualizarCarrossel();
+            }
+            
+            function iniciarAutoPlay() {
+                intervaloCarrossel = setInterval(proximoCard, 6000); // Muda a cada 6 segundos
+            }
+            
+            function pararAutoPlay() {
+                clearInterval(intervaloCarrossel);
+            }
+            
+            // Event Listeners
+            btnProximo.addEventListener('click', () => {
+                pararAutoPlay();
+                proximoCard();
+                iniciarAutoPlay();
+            });
+            
+            btnAnterior.addEventListener('click', () => {
+                pararAutoPlay();
+                indiceAtual = (indiceAtual - 1 + totalCards) % totalCards;
+                atualizarCarrossel();
+                iniciarAutoPlay();
+            });
+            
+            bolinhas.forEach(bolinha => {
+                bolinha.addEventListener('click', () => {
+                    pararAutoPlay();
+                    indiceAtual = parseInt(bolinha.getAttribute('data-indice'));
+                    atualizarCarrossel();
+                    iniciarAutoPlay();
+                });
+            });
+            
+            // Inicia o carrossel
+            iniciarAutoPlay();
+            
+            // Pausa quando o mouse está sobre o carrossel
+            carrossel.addEventListener('mouseenter', pararAutoPlay);
+            carrossel.addEventListener('mouseleave', iniciarAutoPlay);
+            
+            // Toque para dispositivos móveis
+            let touchStartX = 0;
+            let touchEndX = 0;
+            
+            carrossel.addEventListener('touchstart', (e) => {
+                touchStartX = e.changedTouches[0].screenX;
+                pararAutoPlay();
+            }, {passive: true});
+            
+            carrossel.addEventListener('touchend', (e) => {
+                touchEndX = e.changedTouches[0].screenX;
+                handleSwipe();
+                iniciarAutoPlay();
+            }, {passive: true});
+            
+            function handleSwipe() {
+                const diff = touchStartX - touchEndX;
+                if (diff > 50) { // Swipe para a esquerda
+                    proximoCard();
+                } else if (diff < -50) { // Swipe para a direita
+                    indiceAtual = (indiceAtual - 1 + totalCards) % totalCards;
+                    atualizarCarrossel();
+                }
+            }
+        });
+    </script>
+</body>
+</html>
